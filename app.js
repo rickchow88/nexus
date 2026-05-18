@@ -3,16 +3,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('loader');
     const btnTop = document.getElementById('btn-top');
     const btnNew = document.getElementById('btn-new');
+    const btnAiTable = document.getElementById('btn-ai-table');
 
     // Algolia API
     const ALGOLIA_BASE = 'https://hn.algolia.com/api/v1';
     
     const AI_KEYWORDS = [
+        'openai', 'google gemini', 'anthropic', 'deepseek', 'kimi', 'opencode', 'artificial intelligence', 'llm', 'grok',
+        'linux', 'mac os', 'iphone', 'ipad', 'apple'
+    ];
+    
+    const ONLY_AI_KEYWORDS = [
         'openai', 'google gemini', 'anthropic', 'deepseek', 'kimi', 'opencode', 'artificial intelligence', 'llm', 'grok'
     ];
     
     const ITEMS_PER_PAGE = 1500;
-    let currentStoryType = 'top';
+    let currentStoryType = 'ai-table';
 
     // SVG Icons
     const icons = {
@@ -46,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAiNews(sortType) {
         showLoader();
         feedContainer.innerHTML = '';
+        feedContainer.className = 'feed-grid';
         
         try {
             const endpoint = sortType === 'top' ? 'search' : 'search_by_date';
@@ -128,6 +135,83 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function fetchAiTable() {
+        showLoader();
+        feedContainer.innerHTML = '';
+        feedContainer.className = 'table-container';
+        
+        try {
+            const startOf2026 = 1767225600;
+            const endOf2026 = 1798761599;
+            const numericFilters = `numericFilters=created_at_i>=${startOf2026},created_at_i<=${endOf2026}`;
+
+            const fetchPromises = ONLY_AI_KEYWORDS.map(keyword => 
+                fetch(`${ALGOLIA_BASE}/search_by_date?query=${encodeURIComponent(keyword)}&tags=story&hitsPerPage=1000&${numericFilters}`)
+                    .then(res => res.json())
+                    .then(data => data.hits)
+            );
+            
+            const results = await Promise.all(fetchPromises);
+            let allHits = results.flat();
+            
+            const uniqueHits = [];
+            const seenIds = new Set();
+            for (const hit of allHits) {
+                if (!seenIds.has(hit.objectID)) {
+                    seenIds.add(hit.objectID);
+                    uniqueHits.push(hit);
+                }
+            }
+            
+            uniqueHits.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const finalStories = uniqueHits.slice(0, ITEMS_PER_PAGE);
+            
+            renderTable(finalStories);
+        } catch (error) {
+            console.error('Failed to fetch AI news table:', error);
+            feedContainer.innerHTML = '<p class="error">Failed to load news. Please try again later.</p>';
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function renderTable(stories) {
+        if (stories.length === 0) {
+            feedContainer.innerHTML = '<p style="text-align: center; width: 100%; color: var(--text-secondary);">No stories found.</p>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'ai-news-table';
+        
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Source</th>
+                    <th>Score</th>
+                    <th>Author</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${stories.map(story => {
+                    const domain = getDomain(story.url);
+                    const storyUrl = story.url || ('https://news.ycombinator.com/item?id=' + story.objectID);
+                    return '<tr>' +
+                            '<td><a href="' + storyUrl + '" target="_blank" rel="noopener noreferrer">' + story.title + '</a></td>' +
+                            '<td>' + domain + '</td>' +
+                            '<td>' + (story.points || 0) + '</td>' +
+                            '<td>' + story.author + '</td>' +
+                            '<td>' + new Date(story.created_at).toLocaleDateString() + '</td>' +
+                        '</tr>';
+                }).join('')}
+            </tbody>
+        `;
+        
+        feedContainer.appendChild(table);
+    }
+
     function showLoader() {
         loader.classList.remove('hidden');
         feedContainer.classList.add('hidden');
@@ -144,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentStoryType = 'top';
         btnTop.classList.add('active');
         btnNew.classList.remove('active');
+        btnAiTable.classList.remove('active');
         fetchAiNews(currentStoryType);
     });
 
@@ -152,9 +237,19 @@ document.addEventListener('DOMContentLoaded', () => {
         currentStoryType = 'new';
         btnNew.classList.add('active');
         btnTop.classList.remove('active');
+        btnAiTable.classList.remove('active');
         fetchAiNews(currentStoryType);
     });
 
+    btnAiTable.addEventListener('click', () => {
+        if (currentStoryType === 'ai-table') return;
+        currentStoryType = 'ai-table';
+        btnAiTable.classList.add('active');
+        btnTop.classList.remove('active');
+        btnNew.classList.remove('active');
+        fetchAiTable();
+    });
+
     // Initial Load
-    fetchAiNews(currentStoryType);
+    fetchAiTable();
 });
