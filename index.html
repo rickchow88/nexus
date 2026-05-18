@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus | Premium Tech News</title>
+    <meta name="description" content="A modern, premium tech news reader powered by the HackerNews API.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+    
+    <div id="app">
+        <header class="glass-header">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="url(#paint1_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="url(#paint2_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="paint0_linear" x1="2" y1="7" x2="22" y2="7" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#00F0FF" />
+                                <stop offset="1" stop-color="#5773FF" />
+                            </linearGradient>
+                            <linearGradient id="paint1_linear" x1="2" y1="19.5" x2="22" y2="19.5" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#00F0FF" />
+                                <stop offset="1" stop-color="#5773FF" />
+                            </linearGradient>
+                            <linearGradient id="paint2_linear" x1="2" y1="14.5" x2="22" y2="14.5" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#00F0FF" />
+                                <stop offset="1" stop-color="#5773FF" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <h1>Nexus</h1>
+                </div>
+                <nav>
+                    <button id="btn-top" class="nav-btn active">Top AI News</button>
+                    <button id="btn-new" class="nav-btn">Latest AI</button>
+                </nav>
+            </div>
+        </header>
+        
+        <main>
+            <div class="header-spacing"></div>
+            
+            <div id="loader" class="loader">
+                <div class="spinner"></div>
+                <p>Curating your feed...</p>
+            </div>
+            
+            <div id="feed" class="feed-grid hidden">
+                <!-- Stories will be injected here by app.js -->
+            </div>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
