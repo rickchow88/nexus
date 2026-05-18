@@ -1,5 +1,6 @@
 # Nexus | Premium AI News Reader
-# rickchow
+# rickchow88
+# https://github.com/rickchow88/nexus
 
 Nexus is a fast, lightweight, and visually stunning web application designed to curate the latest news in Artificial Intelligence. 
 
